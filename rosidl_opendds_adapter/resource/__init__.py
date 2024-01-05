@@ -22,9 +22,6 @@ import em
 def expand_template(template_name, data, output_file, encoding='utf-8'):
     content = evaluate_template(template_name, data)
     
-    print("----------Content Info----------")
-    print(content)
-    
     if output_file.exists():
         existing_content = output_file.read_text(encoding=encoding)
         if existing_content == content:
