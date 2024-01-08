@@ -10,9 +10,16 @@ for field in msg.fields:
     if include_file is not None:
         include_files.add(include_file)
 }@
-@[for include_file in sorted(include_files)]@
-#include "@(include_file)"
-@[end for]@
+@{
+for include_file in include_files:
+    inc_pkg = pkg_name+"/msg/dds_/"
+
+    if inc_pkg in include_file:
+        inc_name = include_file.replace(inc_pkg,"")
+        print("#include " + "\"" + inc_name + "\"")
+    else:
+        print("#include " + "\"" + include_file + "\"")
+}@
 
 module @(pkg_name) {
   module msg {

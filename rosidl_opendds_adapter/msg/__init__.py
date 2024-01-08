@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pkgutil
 
 from rosidl_opendds_adapter.parser import parse_message_string
 from rosidl_opendds_adapter.resource import expand_template
@@ -101,15 +102,22 @@ def get_idl_type(type_):
         ):
             identifier += f'<{type_.string_upper_bound}>'
     else:
-        identifier = f'{type_.pkg_name}::msg::{type_.type}'
+        identifier = f'{type_.pkg_name}::msg::{type_.type}' + '_'
 
     if isinstance(type_, str) or not type_.is_array:
         return identifier
 
     if type_.is_fixed_size_array():
-        return f'{identifier}[{type_.array_size}]'
+        if type_.pkg_name != None:
+            return f'{type_.pkg_name}::msg::{type_.type}' + '_'
+        else:
+            return f'{identifier}[{type_.array_size}]'
 
     if not type_.is_upper_bound:
-        return f'sequence<{identifier}>'
-
+        if type_.pkg_name != None:
+            return f'{type_.pkg_name}::msg::{type_.type}' + '_'
+        else:
+            return f'sequence<{identifier}>'
+    
+    
     return f'sequence<{identifier}, {type_.array_size}>'
