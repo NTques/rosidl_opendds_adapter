@@ -63,17 +63,14 @@ else:
 idl_type = get_idl_type(field.type)
 }@
 @{
-if "::msg::" in idl_type:
+if isinstance(idl_type, str):
+    idl_type = idl_type.replace("msg::", "msg::dds_::")
     idl_type = idl_type + "_"
+    idl_type = idl_type.replace(">_", "_>")
 }@
 @[    if field.type.is_fixed_size_array()]@
 @{
 idl_type = get_idl_type_identifier(idl_type)
-}@
-@{
-if idl_type[-1] == '_':
-    idl_type = idl_type[:-2]
-    idl_type = idl_type + "_>"
 }@
 @[    end if]@
         @(idl_type) @(field.name);

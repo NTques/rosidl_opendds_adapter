@@ -102,22 +102,21 @@ def get_idl_type(type_):
         ):
             identifier += f'<{type_.string_upper_bound}>'
     else:
-        identifier = f'{type_.pkg_name}::msg::{type_.type}' + '_'
+        identifier = f'{type_.pkg_name}::msg::dds_::{type_.type}' + '_'
+
+    if '::msg::' in identifier:
+        identifier = f'{type_.pkg_name}::msg::dds_::{type_.type}_'
+
 
     if isinstance(type_, str) or not type_.is_array:
         return identifier
 
     if type_.is_fixed_size_array():
-        if type_.pkg_name != None:
-            return f'{type_.pkg_name}::msg::{type_.type}' + '_'
-        else:
-            return f'{identifier}[{type_.array_size}]'
+        return f'{identifier}[{type_.array_size}]'
 
     if not type_.is_upper_bound:
-        if type_.pkg_name != None:
-            return f'{type_.pkg_name}::msg::{type_.type}' + '_'
-        else:
-            return f'sequence<{identifier}>'
+        return f'sequence<{identifier}>'
     
     
     return f'sequence<{identifier}, {type_.array_size}>'
+
