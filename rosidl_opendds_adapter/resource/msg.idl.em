@@ -9,6 +9,11 @@ for field in msg.fields:
     include_file = get_include_file(field.type)
     if include_file is not None:
         include_files.add(include_file)
+
+if msg.fields:
+    for i, field in enumerate(msg.fields):
+        if field.type.is_fixed_size_array():
+            include_files.add(pkg_name + "_typedef.idl")
 }@
 @{
 for include_file in include_files:
@@ -20,6 +25,7 @@ for include_file in include_files:
     else:
         print("#include " + "\"" + include_file + "\"")
 }@
+#include "@(pkg_name)_typedef.idl"
 
 module @(pkg_name) {
   module msg {
@@ -29,6 +35,7 @@ module @(pkg_name) {
 TEMPLATE('struct.idl.em',msg=msg,)
 }@
 
+      typedef sequence<@(pkg_name)::msg::dds_::@(msg.msg_name)_> @(msg.msg_name)_Seq;
     };
   };
 };

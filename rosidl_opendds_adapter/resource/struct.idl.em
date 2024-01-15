@@ -2,9 +2,10 @@
 @{
 from collections import OrderedDict
 
-from rosidl_adapter.msg import get_idl_type
-from rosidl_adapter.msg import to_idl_literal
-from rosidl_adapter.msg import string_to_idl_string_literal
+from rosidl_opendds_adapter.msg import get_idl_type
+from rosidl_opendds_adapter.msg import to_idl_literal
+from rosidl_opendds_adapter.msg import string_to_idl_string_literal
+from rosidl_opendds_adapter.msg import sequence_to_seq
 
 typedefs = OrderedDict()
 def get_idl_type_identifier(idl_type):
@@ -34,9 +35,6 @@ else:
 }@
 @[  end if]@
 @[end for]@
-@[for k, v in typedefs.items()]@
-    typedef @(v) @(k);
-@[end for]@
 @[if msg.constants]@
     module @(msg.msg_name)_Constants {
 @[  for constant in msg.constants]@
@@ -53,26 +51,19 @@ else:
 @[    if i > 0]@
 
 @[    end if]@
-@[    if field.default_value is not None]@
-      @@default (value=@(to_idl_literal(get_idl_type(field.type), field.default_value)))
-@[    end if]@
-@[    if 'unit' in field.annotations]@
-      @@unit (value=@(string_to_idl_string_literal(field.annotations['unit'])))
-@[    end if]@
 @{
 idl_type = get_idl_type(field.type)
 }@
-@{
-if isinstance(idl_type, str):
-    idl_type = idl_type.replace("msg::", "msg::dds_::")
-    idl_type = idl_type + "_"
-    idl_type = idl_type.replace(">_", "_>")
-}@
 @[    if field.type.is_fixed_size_array()]@
 @{
-idl_type = get_idl_type_identifier(idl_type)
+idl_type = msg.base_type.pkg_name + "::msg::dds_::" + get_idl_type_identifier(idl_type)
 }@
 @[    end if]@
+@{
+seq_type = sequence_to_seq(msg, field.type)
+if not seq_type == None:
+    idl_type = seq_type
+}@
         @(idl_type) @(field.name);
 @[  end for]@
 @[else]@

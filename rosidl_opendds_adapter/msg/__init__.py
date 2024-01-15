@@ -15,6 +15,7 @@ import pkgutil
 
 from rosidl_opendds_adapter.parser import parse_message_string
 from rosidl_opendds_adapter.resource import expand_template
+from rosidl_opendds_adapter.typedef import make_typedef_from_msg
 
 
 def convert_msg_to_idl(package_dir, package_name, input_file, output_dir):
@@ -36,8 +37,11 @@ def convert_msg_to_idl(package_dir, package_name, input_file, output_dir):
         'relative_input_file': input_file.as_posix(),
         'msg': msg,
     }
-    
+
     expand_template('msg.idl.em', data, output_file, encoding='iso-8859-1')
+    
+    make_typedef_from_msg(package_dir, package_name, input_file, output_dir)
+    
     return output_file
 
 
@@ -88,7 +92,8 @@ def string_to_idl_wstring_literal(string):
 def get_include_file(base_type):
     if base_type.is_primitive_type():
         return None
-    return f'{base_type.pkg_name}/msg/dds_/{base_type.type}.idl'
+    
+    return f'{base_type.type}.idl'
 
 
 def get_idl_type(type_):
@@ -102,9 +107,6 @@ def get_idl_type(type_):
         ):
             identifier += f'<{type_.string_upper_bound}>'
     else:
-        identifier = f'{type_.pkg_name}::msg::dds_::{type_.type}' + '_'
-
-    if '::msg::' in identifier:
         identifier = f'{type_.pkg_name}::msg::dds_::{type_.type}_'
 
 
@@ -116,7 +118,22 @@ def get_idl_type(type_):
 
     if not type_.is_upper_bound:
         return f'sequence<{identifier}>'
+        #return f'sequence<{identifier}>'
     
     
     return f'sequence<{identifier}, {type_.array_size}>'
+
+
+def sequence_to_seq(msg, type_):
+    identifier = get_idl_type(type_)
+    
+    if "sequence<" in identifier:
+        if "::msg::dds_::" in identifier:
+            return f'{type_.pkg_name}::msg::dds_::{type_.type}_Seq'
+        else:
+            return f'{msg.base_type.pkg_name}::msg::dds_::{type_.type}Seq'
+    else:
+        return None
+        
+
 

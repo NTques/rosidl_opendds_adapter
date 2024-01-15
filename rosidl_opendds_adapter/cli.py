@@ -22,6 +22,7 @@ from catkin_pkg.package import parse_package
 from rosidl_opendds_adapter.action import convert_action_to_idl
 from rosidl_opendds_adapter.msg import convert_msg_to_idl
 from rosidl_opendds_adapter.srv import convert_srv_to_idl
+from rosidl_opendds_adapter.typedef import make_typedef_idl_from_msg
 
 from rosidl_cli.command.helpers import interface_path_as_tuple
 from rosidl_cli.command.translate.extensions import TranslateCommandExtension
@@ -55,6 +56,8 @@ def convert_files_to_idl(extension, conversion_function, argv=sys.argv[1:]):
             package_dir, pkg.name,
             interface_file.absolute().relative_to(package_dir),
             interface_file.parent)
+            
+    make_typedef_idl_from_msg(package_dir, pkg.name, interface_file.parent)
 
 
 class TranslateToIDL(TranslateCommandExtension):
