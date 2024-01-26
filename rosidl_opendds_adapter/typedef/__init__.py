@@ -34,15 +34,21 @@ def make_typedef_idl_from_msg(package_dir, package_name, output_dir):
             include_path = value.split("::")[-1]
             include_path = include_path.replace("_>", "") + ".idl"
             include_files += f'#include "{include_path}"\n'
-    
-    output_data = include_files + "\n" + \
+
+    pname = package_name.upper()
+    mname = pname + "_TYPEDEF"
+
+    output_data = include_files + "" + \
+    f'#ifndef {pname}__{mname}__IDL\n' + \
+    f'#define {pname}__{mname}__IDL\n\n' + \
     "module " + package_name + " {\n" + \
     "  module msg {\n" + \
     "    module dds_ {\n\n" + \
     define_type + "\n\n" + \
     "    };\n"+ \
     "  };\n"+ \
-    "};\n"
+    "};\n\n" + \
+    f'#endif //{pname}__{mname}__IDL'
     
 
     idl_file_path = output_dir / (package_name +  "_typedef.idl")

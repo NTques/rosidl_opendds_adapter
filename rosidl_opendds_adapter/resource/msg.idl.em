@@ -3,6 +3,14 @@
 // generated code does not contain a copyright notice
 
 @{
+pname = pkg_name.upper()
+mname = msg.msg_name.upper()
+
+print(f'#ifndef {pname}__{mname}__IDL')
+print(f'#define {pname}__{mname}__IDL')
+}@
+
+@{
 from rosidl_opendds_adapter.msg import get_include_file
 include_files = set()
 for field in msg.fields:
@@ -39,3 +47,5 @@ TEMPLATE('struct.idl.em',msg=msg,)
     };
   };
 };
+
+#endif //@(pname)__@(mname)__IDL
